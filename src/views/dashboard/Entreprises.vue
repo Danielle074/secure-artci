@@ -1,67 +1,3 @@
-<template>
-  <div class="p-6">
-    <!-- Bouton retour (quand on est en création) -->
-    <div v-if="activeTab === 'create'" class="mb-4">
-      <button
-        @click="goToList"
-        class="flex items-center text-orange-600 hover:text-orange-700 font-medium"
-      >
-        <i class="bx bx-arrow-back text-xl"></i>
-        <span class="ml-1">Retour</span>
-      </button>
-    </div>
-
-    <!-- En-tête -->
-    <div class="flex justify-between items-center mb-6">
-      <!-- Bouton créer -->
-      <button
-        v-if="activeTab === 'list'"
-        @click="goToCreate"
-        class="px-4 py-2 rounded-lg font-semibold bg-orange-600 text-white hover:bg-orange-700 transition"
-      >
-        Créer une Entreprise
-      </button>
-    </div>
-
-    <!-- Création -->
-    <AddCompany
-      v-if="activeTab === 'create'"
-      @add-company="addCompany"
-    />
-
-    <!-- Liste -->
-    <CompanyList
-      v-else
-      :companies="companies"
-      @open-badge="openBadge"
-      @open-members="openMembers"
-      @open-edit="openEdit"
-      @delete-company="deleteCompany"
-      @copy-link="copyToClipboard"
-    />
-
-    <!-- Modals -->
-    <BadgeModal
-      v-if="showBadge"
-      :company="selectedCompany"
-      @close="showBadge = false"
-    />
-
-    <MembersModal
-      v-if="showMembersModal"
-      :company="selectedCompany"
-      @close="showMembersModal = false"
-    />
-
-    <EditCompanyForm
-      v-if="showEditForm"
-      :company="selectedCompany"
-      @close="showEditForm = false"
-      @submit="updateCompany"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -90,6 +26,14 @@ interface Company {
   phone?: string
   email?: string
   members?: string[]
+}
+
+// Interface pour les données du formulaire (sans id)
+interface NewCompanyData {
+  nom: string
+  logo: string
+  phone?: string
+  email?: string
 }
 
 /* Données mock */
@@ -154,9 +98,20 @@ function copyToClipboard(text: string) {
   alert('Lien copié !')
 }
 
-function addCompany(company: Company) {
+// ✅ FONCTION D'AJOUT CORRIGÉE
+function addCompany(newCompany: NewCompanyData) {
   const nextId = companies.value.length + 1
-  companies.value.push({ ...company, id: nextId })
+  const completeCompany: Company = {
+    id: nextId,
+    nom: newCompany.nom,
+    logo: newCompany.logo || 'https://via.placeholder.com/80?text=Logo',
+    qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(newCompany.nom)}`,
+    lien: '#',
+    phone: newCompany.phone || '',
+    email: newCompany.email || '',
+    members: []
+  }
+  companies.value.push(completeCompany)
   goToList()
 }
 </script>
