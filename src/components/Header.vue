@@ -9,21 +9,17 @@
         <i class="bx bx-menu text-2xl"></i>
       </button>
       
-      <!-- Titre de la page -->
       <h1 class="text-lg sm:text-xl font-semibold text-gray-800 truncate">
         {{ pageTitle }}
       </h1>
     </div>
 
-    <!-- Actions header -->
     <div class="flex items-center gap-2 sm:gap-4">
-      <!-- Notifications -->
       <button class="relative p-2 rounded-lg hover:bg-gray-100 transition">
         <i class="bx bx-bell text-xl sm:text-2xl text-gray-600"></i>
         <span class="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
       </button>
 
-      <!-- User info (mobile) -->
       <div class="flex items-center gap-2 lg:hidden">
         <img 
           :src="avatar" 
@@ -36,10 +32,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import avatarImage from '@/assets/images/identite.jpg'
 
-const props = defineProps({
+defineProps({
   pageTitle: {
     type: String,
     default: 'Tableau de bord'
@@ -48,26 +43,12 @@ const props = defineProps({
 
 const avatar = avatarImage
 
-// Référence à la sidebar
-const sidebarRef = ref<any>(null)
-
-// Trouver la sidebar dans le DOM
-onMounted(() => {
-  const sidebar = document.querySelector('aside')
-  if (sidebar && sidebar.__vueParentComponent) {
-    sidebarRef.value = sidebar.__vueParentComponent.ctx
-  }
-})
-
-// Toggle menu mobile
 const toggleMobileMenu = () => {
-  // Émettre un événement pour communiquer avec le parent
   window.dispatchEvent(new CustomEvent('toggle-mobile-menu'))
 }
 </script>
 
 <style scoped>
-/* Styles responsives supplémentaires */
 @media (max-width: 640px) {
   header {
     padding-left: 1rem;

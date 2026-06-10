@@ -117,7 +117,6 @@
 
         <!-- Table normal sans scroll -->
         <div class="bg-white rounded-xl shadow-md w-full overflow-hidden">
-
           <table class="w-full text-left border-collapse min-w-max">
             <thead class="bg-orange-600 text-white">
               <tr>
@@ -196,7 +195,6 @@
               </tr>
             </tbody>
           </table>
-
         </div>
 
         <!-- Pagination -->
@@ -258,7 +256,23 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 
-/* UI state */
+/* ==================== TYPES ==================== */
+interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  image: string;
+  clockIn: string;
+  clockOut: string;
+  totalHours: string;
+  breakTime: string;
+  overtime: string;
+  status: string;
+  dept: string;
+  showActions?: boolean;  // propriété ajoutée pour le dropdown
+}
+
+/* ==================== UI STATE ==================== */
 const showList = ref(true);
 const searchQuery = ref("");
 const showFilterPanel = ref(false);
@@ -270,42 +284,58 @@ const filterStatus = ref("");
 const filterDept = ref("");
 const year = ref(2025);
 
-/* Date navigation */
+/* ==================== DATE NAVIGATION ==================== */
 const dates = ref(["Monday 05 October", "Tuesday 06 October", "Wednesday 07 October", "Thursday 08 October", "Friday 09 October"]);
 const currentDate = ref("Monday 05 October");
-function prevDay() { const index = dates.value.indexOf(currentDate.value); if (index > 0) currentDate.value = dates.value[index - 1]; }
-function nextDay() { const index = dates.value.indexOf(currentDate.value); if (index < dates.value.length - 1) currentDate.value = dates.value[index + 1]; }
 
-/* Dropdowns */
+function prevDay() {
+  const index = dates.value.indexOf(currentDate.value);
+  if (index > 0) {
+    const prevDate = dates.value[index - 1];
+    if (prevDate) currentDate.value = prevDate;
+  }
+}
+
+function nextDay() {
+  const index = dates.value.indexOf(currentDate.value);
+  if (index < dates.value.length - 1 && index !== -1) {
+    const nextDate = dates.value[index + 1];
+    if (nextDate) currentDate.value = nextDate;
+  }
+}
+
+/* ==================== DROPDOWNS ==================== */
 function toggleYearDropdown() { yearDropdown.value = !yearDropdown.value; }
 function selectYear(y: number) { year.value = y; yearDropdown.value = false; }
 function toggleFilter() { showFilterPanel.value = !showFilterPanel.value; }
 function togglePerPageDropdown() { perPageDropdown.value = !perPageDropdown.value; }
 function setPerPage(n: number) { perPage.value = n; perPageDropdown.value = false; currentPage.value = 1; }
-function goToPage(n: number) { if (n < 1) n = 1; if (n > totalPages.value) n = totalPages.value; currentPage.value = n; }
+function goToPage(n: number) { 
+  if (n < 1) n = 1; 
+  if (n > totalPages.value) n = totalPages.value; 
+  currentPage.value = n; 
+}
 
-/* Actions */
-function editEmployee(emp: any) { alert(`Modifier ${emp.name}`); }
-function deleteEmployee(emp: any) { alert(`Supprimer ${emp.name}`); }
-function addEmployee(emp: any) { alert(`Ajouter ${emp.name}`); }
+/* ==================== ACTIONS ==================== */
+function editEmployee(emp: Employee) { alert(`Modifier ${emp.name}`); }
+function deleteEmployee(emp: Employee) { alert(`Supprimer ${emp.name}`); }
+function addEmployee(emp: Employee) { alert(`Ajouter ${emp.name}`); }
 
-/* Employees data */
-const employees = ref([
-  { id: "E01", name: "Jerome Bell", email: "nuray@alignui.com", image: "https://randomuser.me/api/portraits/men/1.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "10:00–10:15", overtime: "2h 10", status: "On time", dept: "Engineering" },
-  { id: "E02", name: "Liam Carter", email: "liam@alignui.com", image: "https://randomuser.me/api/portraits/men/2.jpg", clockIn: "12:02 PM", clockOut: "09:00 PM", totalHours: "8h 58m", breakTime: "11:00–11:10", overtime: "-", status: "Late", dept: "Sales" },
-  { id: "E03", name: "Maya Ross", email: "maya@alignui.com", image: "https://randomuser.me/api/portraits/women/3.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "11:00–11:10", overtime: "2h 10", status: "Late", dept: "Design" },
-  { id: "E04", name: "Ethan Cole", email: "ethan@alignui.com", image: "https://randomuser.me/api/portraits/men/4.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "12:00–12:20", overtime: "2h 10", status: "On time", dept: "Engineering" },
-  { id: "E05", name: "Ava Brooks", email: "ava@alignui.com", image: "https://randomuser.me/api/portraits/women/5.jpg", clockIn: "10:02 AM", clockOut: "07:00 PM", totalHours: "8h 58m", breakTime: "10:00–10:15", overtime: "-", status: "On time", dept: "Sales" },
-  { id: "E06", name: "Noah Reed", email: "noah@alignui.com", image: "https://randomuser.me/api/portraits/men/6.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "11:00–11:10", overtime: "2h 10", status: "On time", dept: "Design" },
-  { id: "E07", name: "Chloe Dean", email: "chloe@alignui.com", image: "https://randomuser.me/api/portraits/women/7.jpg", clockIn: "10:02 AM", clockOut: "07:00 PM", totalHours: "8h 58m", breakTime: "12:00–12:20", overtime: "-", status: "On time", dept: "Engineering" },
-  { id: "E08", name: "Owen Hayes", email: "owen@alignui.com", image: "https://randomuser.me/api/portraits/men/8.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "10:00–10:15", overtime: "2h 10", status: "On time", dept: "Sales" },
-  { id: "E09", name: "Zara Lane", email: "zara@alignui.com", image: "https://randomuser.me/api/portraits/women/9.jpg", clockIn: "09:30 AM", clockOut: "06:30 PM", totalHours: "9h 0m", breakTime: "11:30–11:50", overtime: "-", status: "Late", dept: "Design" },
-  { id: "E10", name: "Lucas Ford", email: "zara@alignui.com", image: "https://randomuser.me/api/portraits/women/9.jpg", clockIn: "09:30 AM", clockOut: "06:30 PM", totalHours: "9h 0m", breakTime: "11:30–11:50", overtime: "-", status: "Late", dept: "Design" },
+/* ==================== EMPLOYEES DATA ==================== */
+const employees = ref<Employee[]>([
+  { id: "E01", name: "Jerome Bell", email: "nuray@alignui.com", image: "https://randomuser.me/api/portraits/men/1.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "10:00–10:15", overtime: "2h 10", status: "On time", dept: "Engineering", showActions: false },
+  { id: "E02", name: "Liam Carter", email: "liam@alignui.com", image: "https://randomuser.me/api/portraits/men/2.jpg", clockIn: "12:02 PM", clockOut: "09:00 PM", totalHours: "8h 58m", breakTime: "11:00–11:10", overtime: "-", status: "Late", dept: "Sales", showActions: false },
+  { id: "E03", name: "Maya Ross", email: "maya@alignui.com", image: "https://randomuser.me/api/portraits/women/3.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "11:00–11:10", overtime: "2h 10", status: "Late", dept: "Design", showActions: false },
+  { id: "E04", name: "Ethan Cole", email: "ethan@alignui.com", image: "https://randomuser.me/api/portraits/men/4.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "12:00–12:20", overtime: "2h 10", status: "On time", dept: "Engineering", showActions: false },
+  { id: "E05", name: "Ava Brooks", email: "ava@alignui.com", image: "https://randomuser.me/api/portraits/women/5.jpg", clockIn: "10:02 AM", clockOut: "07:00 PM", totalHours: "8h 58m", breakTime: "10:00–10:15", overtime: "-", status: "On time", dept: "Sales", showActions: false },
+  { id: "E06", name: "Noah Reed", email: "noah@alignui.com", image: "https://randomuser.me/api/portraits/men/6.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "11:00–11:10", overtime: "2h 10", status: "On time", dept: "Design", showActions: false },
+  { id: "E07", name: "Chloe Dean", email: "chloe@alignui.com", image: "https://randomuser.me/api/portraits/women/7.jpg", clockIn: "10:02 AM", clockOut: "07:00 PM", totalHours: "8h 58m", breakTime: "12:00–12:20", overtime: "-", status: "On time", dept: "Engineering", showActions: false },
+  { id: "E08", name: "Owen Hayes", email: "owen@alignui.com", image: "https://randomuser.me/api/portraits/men/8.jpg", clockIn: "10:02 AM", clockOut: "09:10 PM", totalHours: "8h 58m", breakTime: "10:00–10:15", overtime: "2h 10", status: "On time", dept: "Sales", showActions: false },
+  { id: "E09", name: "Zara Lane", email: "zara@alignui.com", image: "https://randomuser.me/api/portraits/women/9.jpg", clockIn: "09:30 AM", clockOut: "06:30 PM", totalHours: "9h 0m", breakTime: "11:30–11:50", overtime: "-", status: "Late", dept: "Design", showActions: false },
+  { id: "E10", name: "Lucas Ford", email: "lucas@alignui.com", image: "https://randomuser.me/api/portraits/men/10.jpg", clockIn: "09:30 AM", clockOut: "06:30 PM", totalHours: "9h 0m", breakTime: "11:30–11:50", overtime: "-", status: "Late", dept: "Design", showActions: false },
 ]);
 
-employees.value = employees.value.map(emp => ({ ...emp, showActions: false }));
-
-/* Computed filtered + paginated */
+/* ==================== COMPUTED ==================== */
 const filteredEmployees = computed(() => {
   return employees.value.filter(
     emp =>
@@ -314,6 +344,7 @@ const filteredEmployees = computed(() => {
       (filterDept.value ? emp.dept === filterDept.value : true)
   );
 });
+
 const totalPages = computed(() => Math.ceil(filteredEmployees.value.length / perPage.value));
 const paginatedEmployees = computed(() => {
   const start = (currentPage.value - 1) * perPage.value;
